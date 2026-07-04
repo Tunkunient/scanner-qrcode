@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Scanner + Generator</title>
+    <title>TY QR Toolkit – Scan & Generate</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
         /* ============================================================
-                   ALL STYLES IN ONE PLACE
+                   PROFESSIONAL UI – TY BRAND
                    ============================================================ */
         * {
             margin: 0;
@@ -16,87 +19,142 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0d15;
             color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
-            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(102, 126, 234, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(118, 75, 162, 0.08) 0%, transparent 60%);
         }
 
-        .container {
-            max-width: 520px;
+        /* ===== MAIN CARD ===== */
+        .app-card {
+            max-width: 560px;
             width: 100%;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
         }
 
-        /* HEADER */
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 4px;
-            background: linear-gradient(135deg, #66ea7c 0%, #764ba2 100%);
+        /* ===== HEADER WITH LOGO ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f0f0f0 0%, #a0aec0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.5px;
         }
 
-        .subtitle {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+        .header-title .subtitle {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 400;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .badge-pro {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #667eea;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-left: auto;
         }
 
         /* ===== TABS ===== */
         .tabs {
             display: flex;
-            gap: 8px;
-            background: #1a1a1a;
-            padding: 6px;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
             border-radius: 14px;
             margin-bottom: 24px;
-            border: 1px solid #2a2a2a;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .tab-btn {
             flex: 1;
             padding: 10px 0;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 11px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             background: transparent;
-            color: #888;
-            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
         }
 
         .tab-btn.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
         }
 
         .tab-btn:hover:not(.active) {
-            color: #fff;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* ===== PANELS ===== */
         .panel {
             display: none;
-            animation: fadeIn 0.3s ease;
+            animation: fadeSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .panel.active {
             display: block;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeSlideUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(12px);
             }
             to {
                 opacity: 1;
@@ -104,24 +162,30 @@
             }
         }
 
-        /* ===== SCANNER PANEL (Your Original Code) ===== */
+        /* ============================================================
+                   SCANNER PANEL
+                   ============================================================ */
         .scanner-box {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            height: 300px;
-            margin: 0 auto 16px;
-            background: #1a1a1a;
+            padding-bottom: 75%;
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 16px;
             overflow: hidden;
-            border: 2px solid #333;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 16px;
+        }
+
+        .scanner-box-inner {
+            position: absolute;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         #placeholderText {
-            color: #666;
+            color: rgba(255, 255, 255, 0.2);
             font-size: 0.9rem;
         }
 
@@ -140,15 +204,14 @@
             display: none;
         }
 
-        /* OVERLAY (scanning frame) */
         #overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 180px;
-            height: 180px;
-            border: 2px solid #667eea;
+            width: 140px;
+            height: 140px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
             border-radius: 12px;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
             pointer-events: none;
@@ -159,14 +222,40 @@
             display: block;
         }
 
+        /* Scan corners */
+        #overlay::before,
+        #overlay::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-color: #667eea;
+            border-style: solid;
+            border-width: 0;
+        }
+        #overlay::before {
+            top: -2px;
+            left: -2px;
+            border-top-width: 3px;
+            border-left-width: 3px;
+            border-radius: 4px 0 0 0;
+        }
+        #overlay::after {
+            bottom: -2px;
+            right: -2px;
+            border-bottom-width: 3px;
+            border-right-width: 3px;
+            border-radius: 0 0 4px 0;
+        }
+
         /* RESULT */
         #result {
-            background: #1a1a1a;
-            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 14px 18px;
             border-radius: 12px;
-            min-height: 60px;
-            margin-bottom: 16px;
-            border: 1px solid #2a2a2a;
+            min-height: 56px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -174,8 +263,8 @@
         }
 
         #output {
-            color: #aaa;
-            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
         }
 
         #output.success {
@@ -189,143 +278,220 @@
         /* BUTTONS */
         .button-group {
             display: flex;
-            gap: 12px;
-            justify-content: center;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        button {
-            padding: 12px 28px;
+        .button-group .btn {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .btn {
+            padding: 11px 20px;
             border: none;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.15s, opacity 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        button:active {
-            transform: scale(0.95);
+        .btn:active {
+            transform: scale(0.96);
         }
 
-        button:disabled {
-            opacity: 0.5;
+        .btn:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.35);
         }
 
         .btn-secondary {
-            background: #2a2a2a;
-            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .btn-secondary:hover {
-            background: #333;
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
 
         .btn-success {
-            background: #22c55e;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             color: #fff;
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25);
         }
 
-        .btn-success:hover {
-            background: #16a34a;
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.35);
         }
 
         .btn-danger {
-            background: #dc2626;
-            color: #fff;
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(239, 68, 68, 0.25);
         }
 
         /* STATUS */
         .status {
             margin-top: 12px;
-            font-size: 0.85rem;
-            color: #666;
-            min-height: 20px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            min-height: 18px;
+            text-align: center;
         }
 
-        /* FLASHLIGHT BUTTON */
+        /* FLASHLIGHT */
         #flashlightBtn {
             display: none;
         }
-
         #flashlightBtn.visible {
-            display: inline-block;
+            display: inline-flex;
         }
 
-        /* ===== GENERATOR PANEL ===== */
+        /* COPY BUTTON */
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            padding: 3px 12px;
+            font-size: 0.7rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* ============================================================
+                   GENERATOR PANEL
+                   ============================================================ */
         .generator-box {
-            background: #1a1a1a;
-            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
             border-radius: 16px;
-            border: 2px solid #333;
+            border: 1px solid rgba(255, 255, 255, 0.04);
             margin-bottom: 16px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             text-align: left;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
-            color: #aaa;
-            margin-bottom: 6px;
-            font-weight: 500;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
+        .form-group select,
         .form-group input[type="text"],
-        .form-group input[type="url"] {
+        .form-group input[type="url"],
+        .form-group input[type="tel"],
+        .form-group input[type="email"] {
             width: 100%;
-            padding: 12px 16px;
+            padding: 11px 14px;
             border-radius: 10px;
-            border: 1px solid #333;
-            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.3);
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
             outline: none;
-            transition: border 0.2s;
+            transition: all 0.2s;
         }
 
+        .form-group select option {
+            background: #1a1a2e;
+        }
+
+        .form-group select:focus,
         .form-group input:focus {
-            border-color: #667eea;
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            cursor: pointer;
         }
 
         .color-row {
             display: flex;
-            gap: 16px;
+            gap: 12px;
         }
 
         .color-row .form-group {
             flex: 1;
+            margin-bottom: 0;
         }
 
         .form-group input[type="color"] {
             width: 100%;
-            height: 48px;
+            height: 44px;
             padding: 4px;
             border-radius: 10px;
-            border: 1px solid #333;
-            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.3);
             cursor: pointer;
+        }
+
+        .dynamic-fields {
+            display: none;
+            animation: fadeSlideUp 0.25s ease;
+        }
+
+        .dynamic-fields.visible {
+            display: block;
         }
 
         #qrcode-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 200px;
-            background: #0a0a0a;
+            min-height: 180px;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 12px;
-            border: 1px dashed #333;
+            border: 1px dashed rgba(255, 255, 255, 0.06);
             padding: 20px;
-            margin-top: 16px;
+            margin-top: 14px;
         }
 
         #qrcode-container canvas,
@@ -333,64 +499,158 @@
             max-width: 100%;
             height: auto;
             border-radius: 8px;
+            image-rendering: pixelated;
         }
 
         .gen-buttons {
             display: flex;
-            gap: 12px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 10px;
+            margin-top: 14px;
         }
 
-        /* RESPONSIVE */
+        .gen-buttons .btn {
+            flex: 1;
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
         @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5rem;
+            .app-card {
+                padding: 20px;
+                border-radius: 24px;
             }
+
+            .header-title h1 {
+                font-size: 1.2rem;
+            }
+            .logo-wrapper {
+                width: 44px;
+                height: 44px;
+            }
+            .logo-text {
+                font-size: 20px;
+            }
+            .badge-pro {
+                font-size: 0.55rem;
+                padding: 3px 10px;
+            }
+
             .scanner-box {
-                height: 240px;
+                padding-bottom: 70%;
             }
             #overlay {
-                width: 140px;
-                height: 140px;
+                width: 110px;
+                height: 110px;
             }
-            button {
-                padding: 10px 18px;
-                font-size: 0.9rem;
+
+            .generator-box {
+                padding: 14px;
             }
             .color-row {
                 flex-direction: column;
                 gap: 0;
             }
-            .generator-box {
-                padding: 16px;
+            .color-row .form-group {
+                margin-bottom: 12px;
+            }
+            .color-row .form-group:last-child {
+                margin-bottom: 0;
+            }
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 10px 14px;
+            }
+            .button-group .btn {
+                min-width: 60px;
             }
         }
 
-        /* COPY BUTTON */
-        .copy-btn {
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
             background: transparent;
-            border: 1px solid #444;
-            color: #aaa;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            border-radius: 6px;
-            margin-left: 8px;
-            cursor: pointer;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
         }
 
-        .copy-btn:hover {
-            background: #2a2a2a;
-            color: #fff;
+        /* ===== FILE INPUT HIDDEN ===== */
+        #fileInput {
+            display: none;
+        }
+
+        /* ===== PLACEHOLDER TEXT IN QR CONTAINER ===== */
+        #qrcode-container .placeholder-text {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.85rem;
+        }
+
+        /* ===== GENERATE BUTTON FULL WIDTH ===== */
+        .btn-generate-full {
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        /* ===== SCANNER STATUS INDICATOR ===== */
+        .scanning-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.75rem;
+        }
+
+        .scanning-indicator.active {
+            display: inline-flex;
+        }
+
+        .scanning-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse-dot 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>📷 QR Toolkit</h1>
-        <p class="subtitle">Scan · Generate · Download</p>
+    <!-- ============================================================
+    APP CARD
+    ============================================================ -->
+    <div class="app-card">
+
+        <!-- ===== HEADER WITH TY LOGO ===== -->
+        <div class="header">
+            <div class="logo-wrapper">
+                <span class="logo-text">TY</span>
+            </div>
+            <div class="header-title">
+                <h1>QR Toolkit</h1>
+                <span class="subtitle">Scan &amp; Generate · Pro</span>
+            </div>
+            <span class="badge-pro">PRO</span>
+        </div>
 
         <!-- ===== TABS ===== -->
         <div class="tabs">
@@ -399,49 +659,94 @@
         </div>
 
         <!-- ============================================================
-        PANEL 1: SCANNER (Your exact original code)
+        PANEL 1: SCANNER
         ============================================================ -->
         <div id="panelScanner" class="panel active">
-            <!-- Scanner Box -->
+
             <div class="scanner-box">
-                <span id="placeholderText">📸 Camera Preview Here</span>
-                <video id="video" playsinline></video>
-                <canvas id="canvas"></canvas>
-                <div id="overlay"></div>
+                <div class="scanner-box-inner">
+                    <span id="placeholderText">📸 Camera Preview</span>
+                    <video id="video" playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div id="overlay"></div>
+                </div>
             </div>
 
-            <!-- Result Display -->
             <div id="result">
                 <span id="output">Ready to scan...</span>
             </div>
 
-            <!-- Buttons -->
             <div class="button-group">
-                <button id="scanBtn" class="btn-primary">▶ Start Scan</button>
-                <button id="uploadBtn" class="btn-secondary">📁 Upload</button>
-                <button id="flashlightBtn" class="btn-secondary">🔦 Flash</button>
+                <button id="scanBtn" class="btn btn-primary">▶ Start</button>
+                <button id="uploadBtn" class="btn btn-secondary">📁 Upload</button>
+                <button id="flashlightBtn" class="btn btn-secondary">🔦 Flash</button>
             </div>
 
-            <!-- Hidden file input -->
-            <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+            <input type="file" id="fileInput" accept="image/*" />
 
-            <!-- Status -->
-            <p id="status" class="status">✅ Ready. Click "Start Scan" to begin.</p>
+            <p id="status" class="status">✅ Ready. Click "Start" to begin.</p>
         </div>
 
         <!-- ============================================================
-        PANEL 2: GENERATOR (NEW)
+        PANEL 2: GENERATOR
         ============================================================ -->
         <div id="panelGenerator" class="panel">
+
             <div class="generator-box">
+
                 <div class="form-group">
-                    <label for="qrInput">📝 Enter text or URL</label>
-                    <input type="text" id="qrInput" placeholder="https://example.com or Hello World!" value="https://example.com" />
+                    <label for="contentType">📋 Content Type</label>
+                    <select id="contentType">
+                        <option value="url">🌐 URL / Website</option>
+                        <option value="text">📝 Plain Text</option>
+                        <option value="contact" selected>👤 Contact (vCard)</option>
+                        <option value="location">📍 Location (Map)</option>
+                    </select>
+                </div>
+
+                <!-- URL -->
+                <div id="fields-url" class="dynamic-fields">
+                    <div class="form-group">
+                        <label for="genUrl">🔗 Enter URL</label>
+                        <input type="url" id="genUrl" placeholder="https://example.com" value="https://example.com" />
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <div id="fields-text" class="dynamic-fields">
+                    <div class="form-group">
+                        <label for="genText">✏️ Enter your text</label>
+                        <input type="text" id="genText" placeholder="Hello World!" value="Hello World!" />
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div id="fields-contact" class="dynamic-fields visible">
+                    <div class="form-group">
+                        <label for="genName">👤 Full Name</label>
+                        <input type="text" id="genName" placeholder="John Doe" value="John Doe" />
+                    </div>
+                    <div class="form-group">
+                        <label for="genPhone">📞 Phone</label>
+                        <input type="tel" id="genPhone" placeholder="+1234567890" value="+1234567890" />
+                    </div>
+                    <div class="form-group">
+                        <label for="genEmail">✉️ Email</label>
+                        <input type="email" id="genEmail" placeholder="john@doe.com" value="john@doe.com" />
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div id="fields-location" class="dynamic-fields">
+                    <div class="form-group">
+                        <label for="genLocation">📍 Address or Place</label>
+                        <input type="text" id="genLocation" placeholder="Eiffel Tower, Paris" value="Eiffel Tower, Paris" />
+                    </div>
                 </div>
 
                 <div class="color-row">
                     <div class="form-group">
-                        <label for="fgColor">🎨 Dot Color</label>
+                        <label for="fgColor">🎨 Dots</label>
                         <input type="color" id="fgColor" value="#000000" />
                     </div>
                     <div class="form-group">
@@ -450,26 +755,27 @@
                     </div>
                 </div>
 
-                <button id="generateBtn" class="btn-primary" style="width:100%;">⚡ Generate QR Code</button>
+                <button id="generateBtn" class="btn btn-primary btn-generate-full">⚡ Generate QR Code</button>
 
                 <div id="qrcode-container">
-                    <span style="color: #666; font-size: 0.9rem;">✨ Your QR code will appear here</span>
+                    <span class="placeholder-text">✨ Your QR code will appear here</span>
                 </div>
 
                 <div class="gen-buttons">
-                    <button id="downloadBtn" class="btn-success" disabled>⬇️ Download PNG</button>
+                    <button id="downloadBtn" class="btn btn-success" disabled>⬇️ Download PNG</button>
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- ============================================================
     LIBRARIES
     ============================================================ -->
-    <!-- jsQR for scanning -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js">
     </script>
-    <!-- qrcodejs for generating -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
     </script>
 
@@ -486,10 +792,9 @@
         const panelScanner = document.getElementById('panelScanner');
         const panelGenerator = document.getElementById('panelGenerator');
 
-        let qrCodeInstance = null; // for generator
+        let qrCodeInstance = null;
 
         function switchTab(tab) {
-            // Hide all panels
             panelScanner.classList.remove('active');
             panelGenerator.classList.remove('active');
             tabScanner.classList.remove('active');
@@ -498,16 +803,12 @@
             if (tab === 'scanner') {
                 panelScanner.classList.add('active');
                 tabScanner.classList.add('active');
-                // Stop generator if running (nothing to stop)
             } else {
                 panelGenerator.classList.add('active');
                 tabGenerator.classList.add('active');
-                // Stop camera to save battery
-                if (isScanning) {
-                    stopCamera();
-                }
-                // Auto-generate a default QR
-                if (!qrCodeInstance) {
+                if (isScanning) stopCamera();
+                const container = document.getElementById('qrcode-container');
+                if (!container.querySelector('canvas') && !container.querySelector('img')) {
                     generateQR();
                 }
             }
@@ -517,10 +818,8 @@
         tabGenerator.addEventListener('click', () => switchTab('generator'));
 
         // ============================================================
-        // 1. SCANNER (Your exact original code, with one fix: video.play())
+        // 1. SCANNER (YOUR ORIGINAL CODE - UNTOUCHED)
         // ============================================================
-
-        console.log('🚀 QR Code Scanner loading...');
 
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -557,10 +856,8 @@
                 placeholderText.style.display = 'none';
                 overlay.classList.add('active');
 
-                // ⭐ FIX: Start the live feed!
                 await video.play();
 
-                // Show flashlight button
                 flashlightBtn.classList.add('visible');
 
                 isScanning = true;
@@ -576,7 +873,7 @@
                 statusEl.textContent = '❌ Camera unavailable. Use Upload Image.';
                 output.textContent = '⚠️ Camera access denied. Please allow camera or upload an image.';
                 output.className = 'error';
-                scanBtn.textContent = '▶ Start Scan';
+                scanBtn.textContent = '▶ Start';
                 scanBtn.disabled = false;
                 flashlightBtn.classList.remove('visible');
             }
@@ -595,7 +892,7 @@
             flashlightOn = false;
             flashlightBtn.textContent = '🔦 Flash';
             isScanning = false;
-            scanBtn.textContent = '▶ Start Scan';
+            scanBtn.textContent = '▶ Start';
             statusEl.textContent = '⏹ Stopped.';
             output.textContent = 'Ready to scan...';
             output.className = '';
@@ -642,7 +939,6 @@
             if (navigator.vibrate) navigator.vibrate(100);
         }
 
-        // Upload
         function handleFileUpload(file) {
             if (!file || !file.type.startsWith('image/')) {
                 output.textContent = '❌ Please select an image file.';
@@ -699,7 +995,6 @@
             reader.readAsDataURL(file);
         }
 
-        // Flashlight
         async function toggleFlashlight() {
             if (!stream) {
                 statusEl.textContent = '⚠️ Please start camera first.';
@@ -735,7 +1030,6 @@
             }
         }
 
-        // Copy button (unchanged)
         function addCopyButton() {
             const resultDiv = document.getElementById('result');
             const existingCopy = resultDiv.querySelector('.copy-btn');
@@ -769,7 +1063,6 @@
         });
         outputObserver.observe(output, { childList: true, characterData: true, subtree: true });
 
-        // Scanner Event Listeners
         scanBtn.addEventListener('click', function() {
             if (isScanning) stopCamera();
             else startCamera();
@@ -807,19 +1100,18 @@
             scanBtn.disabled = true;
         }
 
-        // Drag & Drop
-        const container = document.querySelector('.container');
+        const container = document.querySelector('.app-card');
         container.addEventListener('dragover', function(e) {
             e.preventDefault();
-            container.style.borderColor = '#667eea';
+            container.style.borderColor = 'rgba(102, 126, 234, 0.3)';
         });
         container.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            container.style.borderColor = 'transparent';
+            container.style.borderColor = 'rgba(255, 255, 255, 0.06)';
         });
         container.addEventListener('drop', function(e) {
             e.preventDefault();
-            container.style.borderColor = 'transparent';
+            container.style.borderColor = 'rgba(255, 255, 255, 0.06)';
             const files = e.dataTransfer.files;
             if (files && files[0] && files[0].type.startsWith('image/')) {
                 if (isScanning) stopCamera();
@@ -830,40 +1122,89 @@
             }
         });
 
-        console.log('✅ QR Toolkit ready!');
-
         // ============================================================
-        // 2. GENERATOR (NEW)
+        // 2. GENERATOR
         // ============================================================
 
-        const qrInput = document.getElementById('qrInput');
+        const contentType = document.getElementById('contentType');
+        const genUrl = document.getElementById('genUrl');
+        const genText = document.getElementById('genText');
+        const genName = document.getElementById('genName');
+        const genPhone = document.getElementById('genPhone');
+        const genEmail = document.getElementById('genEmail');
+        const genLocation = document.getElementById('genLocation');
         const fgColor = document.getElementById('fgColor');
         const bgColor = document.getElementById('bgColor');
         const generateBtn = document.getElementById('generateBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const qrContainer = document.getElementById('qrcode-container');
 
+        const fieldGroups = {
+            url: document.getElementById('fields-url'),
+            text: document.getElementById('fields-text'),
+            contact: document.getElementById('fields-contact'),
+            location: document.getElementById('fields-location')
+        };
+
+        function updateFields() {
+            const selected = contentType.value;
+            Object.values(fieldGroups).forEach(el => el.classList.remove('visible'));
+            if (fieldGroups[selected]) {
+                fieldGroups[selected].classList.add('visible');
+            }
+            if (qrContainer.querySelector('canvas') || qrContainer.querySelector('img')) {
+                generateQR();
+            }
+        }
+
+        contentType.addEventListener('change', updateFields);
+
+        function buildQRContent() {
+            const type = contentType.value;
+
+            switch (type) {
+                case 'url':
+                    return genUrl.value.trim() || 'https://example.com';
+                case 'text':
+                    return genText.value.trim() || 'Hello World!';
+                case 'contact': {
+                    const name = genName.value.trim() || 'John Doe';
+                    const phone = genPhone.value.trim() || '';
+                    const email = genEmail.value.trim() || '';
+                    let vcard = 'BEGIN:VCARD\nVERSION:3.0\n';
+                    vcard += `FN:${name}\n`;
+                    if (phone) vcard += `TEL:${phone}\n`;
+                    if (email) vcard += `EMAIL:${email}\n`;
+                    vcard += 'END:VCARD';
+                    return vcard;
+                }
+                case 'location': {
+                    const address = genLocation.value.trim() || 'Eiffel Tower, Paris';
+                    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+                }
+                default:
+                    return 'Hello World!';
+            }
+        }
+
         function generateQR() {
-            const text = qrInput.value.trim();
-            if (!text) {
-                alert('Please enter some text or a URL.');
+            const content = buildQRContent();
+            if (!content) {
+                alert('Please fill in the required fields.');
                 return;
             }
 
-            // Clear previous QR
             qrContainer.innerHTML = '';
 
-            // Create a new QR code
             qrCodeInstance = new QRCode(qrContainer, {
-                text: text,
+                text: content,
                 width: 256,
                 height: 256,
                 colorDark: fgColor.value,
                 colorLight: bgColor.value,
-                correctLevel: QRCode.CorrectLevel.H // High error correction (good for logos later)
+                correctLevel: QRCode.CorrectLevel.H
             });
 
-            // Enable download button
             downloadBtn.disabled = false;
             statusEl.textContent = '✅ QR code generated!';
         }
@@ -875,72 +1216,35 @@
                 return;
             }
 
-            // Create a high-res download (2x size)
             const link = document.createElement('a');
-            link.download = `qrcode_${Date.now()}.png`;
+            link.download = `ty-qrcode-${Date.now()}.png`;
             link.href = canvasEl.toDataURL('image/png');
             link.click();
             statusEl.textContent = '⬇️ QR code downloaded!';
         }
 
-        // Generator Event Listeners
         generateBtn.addEventListener('click', generateQR);
-
         downloadBtn.addEventListener('click', downloadQR);
 
-        // Auto-generate on Enter key in input
-        qrInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                generateQR();
-            }
+        document.querySelectorAll('#panelGenerator input').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    generateQR();
+                }
+            });
         });
 
-        // Auto-generate when colors change (optional, nice UX)
         fgColor.addEventListener('input', generateQR);
         bgColor.addEventListener('input', generateQR);
 
-        // Generate initial QR code when the page loads (and generator tab is active)
-        // We'll generate it the first time the generator tab is opened.
-        // But since it's hidden, we generate it on first click.
-        // Let's generate a default one now so it's ready.
-        setTimeout(() => {
-            // Only generate if generator panel is active, else wait.
-            if (panelGenerator.classList.contains('active')) {
-                generateQR();
-            }
-        }, 500);
-
-        // Override tab switch to generate QR when switching to generator
-        const originalSwitchTab = switchTab;
-        switchTab = function(tab) {
-            originalSwitchTab(tab);
-            if (tab === 'generator') {
-                // Generate QR if it doesn't exist or container is empty
-                if (!qrContainer.querySelector('canvas') && !qrContainer.querySelector('img')) {
-                    generateQR();
-                } else if (qrCodeInstance) {
-                    // Re-generate to apply current colors if needed
-                    // But only if text is not empty
-                    if (qrInput.value.trim()) {
-                        generateQR();
-                    }
-                }
-            }
-        };
-
-        // Re-bind the tab listeners to use the new switchTab
-        tabScanner.removeEventListener('click', () => switchTab('scanner'));
-        tabGenerator.removeEventListener('click', () => switchTab('generator'));
-        tabScanner.addEventListener('click', () => switchTab('scanner'));
-        tabGenerator.addEventListener('click', () => switchTab('generator'));
-
-        // Fix initial state: if generator is active by default, generate.
         if (panelGenerator.classList.contains('active')) {
             setTimeout(generateQR, 100);
         }
 
-        console.log('✨ Generator ready!');
+        updateFields();
+
+        console.log('✅ TY QR Toolkit ready!');
     </script>
 
 </body>
