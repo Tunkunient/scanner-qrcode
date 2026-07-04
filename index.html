@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Scanner</title>
+
+    <style>
+        /* ============================================================
+                   ALL STYLES IN ONE PLACE
+                   ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* HEADER */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* SCANNER BOX */
+        .scanner-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin: 0 auto 16px;
+            background: #1a1a1a;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #placeholderText {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        #video.active {
+            display: block;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        /* OVERLAY (scanning frame) */
+        #overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            display: none;
+        }
+
+        #overlay.active {
+            display: block;
+        }
+
+        /* RESULT */
+        #result {
+            background: #1a1a1a;
+            padding: 14px 16px;
+            border-radius: 12px;
+            min-height: 60px;
+            margin-bottom: 16px;
+            border: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-all;
+        }
+
+        #output {
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+
+        #output.success {
+            color: #4ade80;
+        }
+
+        #output.error {
+            color: #f87171;
+        }
+
+        /* BUTTONS */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        /* STATUS */
+        .status {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #666;
+            min-height: 20px;
+        }
+
+        /* FLASHLIGHT BUTTON */
+        #flashlightBtn {
+            display: none;
+        }
+
+        #flashlightBtn.visible {
+            display: inline-block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .scanner-box {
+                height: 240px;
+            }
+            #overlay {
+                width: 140px;
+                height: 140px;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* COPY BUTTON */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #aaa;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    HTML STRUCTURE
+    ============================================================ -->
+    <div class="container">
+        <h1>📷 QR Scanner</h1>
+        <p class="subtitle">Point your camera at a QR code</p>
+
+        <!-- Scanner Box -->
+        <div class="scanner-box">
+            <span id="placeholderText">📸 Camera Preview Here</span>
+            <video id="video" playsinline></video>
+            <canvas id="canvas"></canvas>
+            <div id="overlay"></div>
+        </div>
+
+        <!-- Result Display -->
+        <div id="result">
+            <span id="output">Ready to scan...</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-group">
+            <button id="scanBtn" class="btn-primary">▶ Start Scan</button>
+            <button id="uploadBtn" class="btn-secondary">📁 Upload</button>
+            <button id="flashlightBtn" class="btn-secondary">🔦 Flash</button>
+        </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+
+        <!-- Status -->
+        <p id="status" class="status">✅ Ready. Click "Start Scan" to begin.</p>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT - QR DECODING LIBRARY + APP LOGIC
+    ============================================================ -->
+
+    <!-- Load jsQR library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js">
+    </script>
+
+    <!-- Main App Script -->
+    <script>
+        // ============================================================
+        // QR CODE SCANNER - COMPLETE APP LOGIC
+        // ============================================================
+
+        console.log('🚀 QR Code Scanner loading...');
+
+        // ---- DOM References ----
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const output = document.getElementById('output');
+        const statusEl = document.getElementById('status');
+        const scanBtn = document.getElementById('scanBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const overlay = document.getElementById('overlay');
+        const placeholderText = document.getElementById('placeholderText');
+        const flashlightBtn = document.getElementById('flashlightBtn');
+
+        // ---- State Variables ----
+        let isScanning = false;
+        let stream = null;
+        let scanLoopId = null;
+        let flashlightOn = false;
+
+        // ============================================================
+        // 1. CAMERA FUNCTIONS
+        // ============================================================
+
+        async function startCamera() {
+            try {
+                statusEl.textContent = '⏳ Requesting camera...';
+                output.textContent = '🔍 Requesting camera...';
+                output.className = '';
+
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+
+                video.srcObject = stream;
+                video.classList.add('active');
+                placeholderText.style.display = 'none';
+                overlay.classList.add('active');
+
+                // Show flashlight button if supported
+                const track = stream.getVideoTracks()[0];
+                if (track && track.getCapabilities) {
+                    const caps = track.getCapabilities();
+                    if (caps.torch) {
+                        flashlightBtn.classList.add('visible');
+                    }
+                }
+
+                isScanning = true;
+                scanBtn.textContent = '⏹ Stop';
+                statusEl.textContent = '📸 Camera active. Scanning...';
+                output.textContent = '🔍 Looking for QR code...';
+                output.className = '';
+
+                // Start the scan loop
+                scanLoop();
+
+            } catch (err) {
+                console.error('Camera error:', err);
+                statusEl.textContent = '❌ Camera unavailable. Use Upload Image.';
+                output.textContent = '⚠️ Camera access denied. Please allow camera or upload an image.';
+                output.className = 'error';
+                scanBtn.textContent = '▶ Start Scan';
+                scanBtn.disabled = false;
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+            video.classList.remove('active');
+            placeholderText.style.display = 'block';
+            overlay.classList.remove('active');
+            flashlightBtn.classList.remove('visible');
+            flashlightOn = false;
+            flashlightBtn.textContent = '🔦 Flash';
+            isScanning = false;
+            scanBtn.textContent = '▶ Start Scan';
+            statusEl.textContent = '⏹ Stopped.';
+            output.textContent = 'Ready to scan...';
+            output.className = '';
+            if (scanLoopId) {
+                cancelAnimationFrame(scanLoopId);
+                scanLoopId = null;
+            }
+        }
+
+        // ============================================================
+        // 2. SCAN LOOP
+        // ============================================================
+
+        function scanLoop() {
+            if (!isScanning) {
+                scanLoopId = null;
+                return;
+            }
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                try {
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert',
+                    });
+
+                    if (code && code.data) {
+                        handleQRResult(code.data);
+                        // Optionally stop after first scan (uncomment to enable)
+                        // stopCamera();
+                        // return;
+                    }
+                } catch (e) {
+                    // Silent fail on decode errors
+                }
+            }
+
+            scanLoopId = requestAnimationFrame(scanLoop);
+        }
+
+        // ============================================================
+        // 3. QR RESULT HANDLER
+        // ============================================================
+
+        function handleQRResult(data) {
+            output.textContent = '✅ ' + data;
+            output.className = 'success';
+            statusEl.textContent = '🎯 QR code detected!';
+
+            // Vibrate on mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
+            // Auto-open URLs (optional)
+            if (data.startsWith('http://') || data.startsWith('https://')) {
+                // Uncomment to auto-open:
+                // if (confirm('Open URL: ' + data)) {
+                //     window.open(data, '_blank');
+                // }
+            }
+        }
+
+        // ============================================================
+        // 4. UPLOAD IMAGE
+        // ============================================================
+
+        function handleFileUpload(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                output.textContent = '❌ Please select an image file.';
+                output.className = 'error';
+                return;
+            }
+
+            statusEl.textContent = '⏳ Processing image...';
+            output.textContent = '⏳ Reading image...';
+            output.className = '';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                    try {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert',
+                        });
+
+                        if (code && code.data) {
+                            output.textContent = '✅ ' + code.data;
+                            output.className = 'success';
+                            statusEl.textContent = '🎯 QR code found in image!';
+                            if (navigator.vibrate) navigator.vibrate(100);
+                        } else {
+                            output.textContent = '❌ No QR code found in this image.';
+                            output.className = 'error';
+                            statusEl.textContent = '😕 Try a clearer image.';
+                        }
+                    } catch (err) {
+                        output.textContent = '❌ Error reading image.';
+                        output.className = 'error';
+                        statusEl.textContent = '⚠️ ' + err.message;
+                    }
+                };
+                img.onerror = function() {
+                    output.textContent = '❌ Failed to load image.';
+                    output.className = 'error';
+                    statusEl.textContent = '⚠️ Image could not be loaded.';
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = function() {
+                output.textContent = '❌ Failed to read file.';
+                output.className = 'error';
+                statusEl.textContent = '⚠️ File could not be read.';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ============================================================
+        // 5. FLASHLIGHT
+        // ============================================================
+
+        async function toggleFlashlight() {
+            if (!stream) {
+                statusEl.textContent = '⚠️ Please start camera first.';
+                return;
+            }
+
+            try {
+                const track = stream.getVideoTracks()[0];
+                if (!track) {
+                    statusEl.textContent = '⚠️ No video track found.';
+                    return;
+                }
+
+                const capabilities = track.getCapabilities();
+                if (!capabilities.torch) {
+                    statusEl.textContent = '⚠️ Flashlight not supported on this device.';
+                    return;
+                }
+
+                flashlightOn = !flashlightOn;
+                await track.applyConstraints({
+                    advanced: [{ torch: flashlightOn }]
+                });
+                flashlightBtn.textContent = flashlightOn ? '🔦 On' : '🔦 Off';
+                statusEl.textContent = flashlightOn ? '💡 Flashlight ON' : '💡 Flashlight OFF';
+            } catch (err) {
+                console.error('Flashlight error:', err);
+                statusEl.textContent = '⚠️ Flashlight unavailable.';
+            }
+        }
+
+        // ============================================================
+        // 6. COPY TO CLIPBOARD (Adds copy button to result)
+        // ============================================================
+
+        function addCopyButton() {
+            const resultDiv = document.getElementById('result');
+            const existingCopy = resultDiv.querySelector('.copy-btn');
+            if (existingCopy) existingCopy.remove();
+
+            const text = output.textContent;
+            if (!text || text === 'Ready to scan...' || text.includes('❌') || text.includes('🔍')) return;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '📋 Copy';
+            copyBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const textToCopy = output.textContent.replace('✅ ', '');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyBtn.textContent = '✅ Copied!';
+                    setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+                }).catch(() => {
+                    // Fallback
+                    const range = document.createRange();
+                    range.selectNode(output);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    copyBtn.textContent = '✅ Copied!';
+                    setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+                });
+            });
+            resultDiv.appendChild(copyBtn);
+        }
+
+        // Monitor output changes for copy button
+        const outputObserver = new MutationObserver(() => {
+            if (output.textContent.startsWith('✅')) {
+                addCopyButton();
+            }
+        });
+        outputObserver.observe(output, { childList: true, characterData: true, subtree: true });
+
+        // ============================================================
+        // 7. EVENT LISTENERS
+        // ============================================================
+
+        // Scan button: Start/Stop
+        scanBtn.addEventListener('click', function() {
+            if (isScanning) {
+                stopCamera();
+            } else {
+                startCamera();
+            }
+        });
+
+        // Upload button: trigger file picker
+        uploadBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // File input: handle selected file
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                if (isScanning) stopCamera();
+                handleFileUpload(e.target.files[0]);
+                fileInput.value = '';
+            }
+        });
+
+        // Flashlight button
+        flashlightBtn.addEventListener('click', toggleFlashlight);
+
+        // ============================================================
+        // 8. KEYBOARD SHORTCUTS (for power users)
+        // ============================================================
+
+        document.addEventListener('keydown', function(e) {
+            // Space to toggle scan
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+                scanBtn.click();
+            }
+            // Ctrl+O for upload
+            if (e.key === 'o' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                uploadBtn.click();
+            }
+        });
+
+        // ============================================================
+        // 9. INITIALIZATION
+        // ============================================================
+
+        console.log('✅ QR Code Scanner ready!');
+        console.log('📌 Press SPACE to start/stop scanning');
+        console.log('📌 Press Ctrl+O to upload an image');
+        statusEl.textContent = '✅ Ready. Click "Start Scan" to begin.';
+
+        // Check if camera is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            statusEl.textContent = '⚠️ Camera not supported in this browser. Use Upload Image.';
+            output.textContent = '⚠️ Camera unavailable';
+            output.className = 'error';
+            scanBtn.disabled = true;
+        }
+
+        // ============================================================
+        // 10. DRAG & DROP SUPPORT (Bonus)
+        // ============================================================
+
+        const container = document.querySelector('.container');
+
+        container.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            container.style.borderColor = '#667eea';
+        });
+
+        container.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            container.style.borderColor = 'transparent';
+        });
+
+        container.addEventListener('drop', function(e) {
+            e.preventDefault();
+            container.style.borderColor = 'transparent';
+            const files = e.dataTransfer.files;
+            if (files && files[0] && files[0].type.startsWith('image/')) {
+                if (isScanning) stopCamera();
+                handleFileUpload(files[0]);
+            } else {
+                output.textContent = '❌ Please drop an image file.';
+                output.className = 'error';
+            }
+        });
+
+        console.log('🎯 Drag and drop an image to scan it!');
+    </script>
+
+</body>
