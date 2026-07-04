@@ -304,52 +304,55 @@
         // 1. CAMERA FUNCTIONS
         // ============================================================
 
-        async function startCamera() {
-            try {
-                statusEl.textContent = '⏳ Requesting camera...';
-                output.textContent = '🔍 Requesting camera...';
-                output.className = '';
+        asyncasync function startCamera() {
+    try {
+        statusEl.textContent = '⏳ Requesting camera...';
+        output.textContent = '🔍 Requesting camera...';
+        output.className = '';
 
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'environment',
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    }
-                });
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        });
 
-                video.srcObject = stream;
-                video.classList.add('active');
-                placeholderText.style.display = 'none';
-                overlay.classList.add('active');
+        video.srcObject = stream;
+        video.classList.add('active');
+        placeholderText.style.display = 'none';
+        overlay.classList.add('active');
 
-                // Show flashlight button if supported
-                const track = stream.getVideoTracks()[0];
-                if (track && track.getCapabilities) {
-                    const caps = track.getCapabilities();
-                    if (caps.torch) {
-                        flashlightBtn.classList.add('visible');
-                    }
-                }
+        // ⭐ FIX 1: FORCE video to start playing NOW
+        await video.play();
 
-                isScanning = true;
-                scanBtn.textContent = '⏹ Stop';
-                statusEl.textContent = '📸 Camera active. Scanning...';
-                output.textContent = '🔍 Looking for QR code...';
-                output.className = '';
-
-                // Start the scan loop
-                scanLoop();
-
-            } catch (err) {
-                console.error('Camera error:', err);
-                statusEl.textContent = '❌ Camera unavailable. Use Upload Image.';
-                output.textContent = '⚠️ Camera access denied. Please allow camera or upload an image.';
-                output.className = 'error';
-                scanBtn.textContent = '▶ Start Scan';
-                scanBtn.disabled = false;
+        // Show flashlight button if supported
+        const track = stream.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+            const caps = track.getCapabilities();
+            if (caps.torch) {
+                flashlightBtn.classList.add('visible');
             }
         }
+
+        isScanning = true;
+        scanBtn.textContent = '⏹ Stop';
+        statusEl.textContent = '📸 Camera active. Scanning...';
+        output.textContent = '🔍 Looking for QR code...';
+        output.className = '';
+
+        // Start the scan loop
+        scanLoop();
+
+    } catch (err) {
+        console.error('Camera error:', err);
+        statusEl.textContent = '❌ Camera unavailable. Use Upload Image.';
+        output.textContent = '⚠️ Camera access denied. Please allow camera or upload an image.';
+        output.className = 'error';
+        scanBtn.textContent = '▶ Start Scan';
+        scanBtn.disabled = false;
+    }
+}
 
         function stopCamera() {
             if (stream) {
@@ -379,38 +382,40 @@
         // ============================================================
 
         function scanLoop() {
-            if (!isScanning) {
-                scanLoopId = null;
-                return;
+    if (!isScanning) {
+        scanLoopId = null;
+        return;
+    }
+
+    // ⭐ Wait until the camera actually has a frame to show
+    if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        try {
+            // ⭐ FIX 2: Use 'attemptBoth' so it reads dark OR light QR codes
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: 'attemptBoth', 
+            });
+
+            if (code && code.data) {
+                handleQRResult(code.data);
+                // ⭐ (Optional) Stop after first detection – remove comment if you want it to stop automatically
+                // stopCamera();
+                // return;
             }
-
-            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-                try {
-                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: 'dontInvert',
-                    });
-
-                    if (code && code.data) {
-                        handleQRResult(code.data);
-                        // Optionally stop after first scan (uncomment to enable)
-                        // stopCamera();
-                        // return;
-                    }
-                } catch (e) {
-                    // Silent fail on decode errors
-                }
-            }
-
-            scanLoopId = requestAnimationFrame(scanLoop);
+        } catch (e) {
+            // Silent fail on decode errors
         }
+    }
 
+    // Keep looping
+    scanLoopId = requestAnimationFrame(scanLoop);
+}
         // ============================================================
         // 3. QR RESULT HANDLER
         // ============================================================
